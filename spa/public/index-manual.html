@@ -8,6 +8,7 @@
     <div id="user" style="display: block;">
       <button id="logout" type="button">Logout</button>
       <button id="login" type="button">Login</button>
+      <button id="setupPasskey" type="button">Setup Passkey</button>
       <button id="showMyAccount" type="button">My Account</button>
       <button id="showIdToken" type="button">Show ID Token</button>
       <button id="showAccessToken" type="button">Show Access Token</button>
@@ -50,6 +51,11 @@
 
       document.getElementById("login").addEventListener("click", () => {
         var options = {};
+        keycloak.login(options);
+      });
+
+      document.getElementById("setupPasskey").addEventListener("click", () => {
+        var options = {action: 'webauthn-register-passwordless'};
         keycloak.login(options);
       });
 
