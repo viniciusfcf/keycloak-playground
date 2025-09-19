@@ -1,0 +1,39 @@
+services:
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap
+    environment:
+      LDAP_ORGANISATION: "Example Inc."
+      LDAP_DOMAIN: "example.org"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_TLS: "true"
+      LDAP_TLS_CRT_FILENAME: "ldap.crt"
+      LDAP_TLS_KEY_FILENAME: "ldap.key"
+      LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+      LDAP_TLS_VERIFY_CLIENT: "try"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ./ldap/certs:/container/service/slapd/assets/certs
+      # # Mount custom slapd.conf
+      - ./slapd.conf:/etc/ldap/slapd.conf
+      # # Mount custom OpenSSL config
+      - ./openssl.cnf:/etc/ssl/openssl.cnf
+  keycloak:
+    image: my-kc:latest
+    container_name: keycloak
+    command: start-dev
+    environment:
+      # Admin credentials
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      # Trust LDAP cert
+      JAVA_OPTS_APPEND: "-Djavax.net.ssl.trustStore=/opt/keycloak/conf/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+    volumes:
+      - ./keycloak/truststore.jks:/opt/keycloak/conf/truststore.jks
+
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ldap
